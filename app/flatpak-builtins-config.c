@@ -112,6 +112,7 @@ typedef struct
 
 ConfigKey keys[] = {
   { "languages", parse_lang, print_lang, get_lang_default },
+  { "default-languages", parse_lang, print_lang, get_lang_default },
 };
 
 static ConfigKey *

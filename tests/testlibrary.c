@@ -238,6 +238,52 @@ test_installation_config (void)
 }
 
 static void
+test_languages_config (void)
+{
+  g_autoptr(FlatpakInstallation) inst = NULL;
+  g_autofree char *path = NULL;
+  g_autoptr(GFile) file = NULL;
+  g_autoptr(GError) error = NULL;
+  g_auto(GStrv) value = NULL;
+  gboolean res;
+
+  path = g_build_filename (g_get_user_data_dir (), "flatpak", NULL);
+  file = g_file_new_for_path (path);
+  inst = flatpak_installation_new_for_path (file, TRUE, NULL, &error);
+  g_assert_no_error (error);
+  g_assert_nonnull (inst);
+
+  value = flatpak_installation_get_default_languages (inst, &error);
+  g_assert_null (value);
+  g_assert_error (error, G_KEY_FILE_ERROR, G_KEY_FILE_ERROR_KEY_NOT_FOUND);
+  g_clear_error (&error);
+
+  res = flatpak_installation_set_config_sync (inst, "default-languages", "en;pt", NULL, &error);
+  g_assert_no_error (error);
+  g_assert_true (res);
+
+  value = flatpak_installation_get_default_languages (inst, &error);
+  g_assert_no_error (error);
+  g_assert_cmpstr (value[0], ==, "en");
+  g_assert_cmpstr (value[1], ==, "pt");
+  g_assert_null (value[2]);
+
+  g_clear_pointer (&value, g_free);
+
+  res = flatpak_installation_set_config_sync (inst, "languages", "ar;es", NULL, &error);
+  g_assert_no_error (error);
+  g_assert_true (res);
+
+  value = flatpak_installation_get_default_languages (inst, &error);
+  g_assert_no_error (error);
+  g_assert_cmpstr (value[0], ==, "ar");
+  g_assert_cmpstr (value[1], ==, "es");
+  g_assert_null (value[2]);
+
+  g_clear_pointer (&value, g_free);
+}
+
+static void
 test_arches (void)
 {
   const char *default_arch;
@@ -3635,6 +3681,7 @@ main (int argc, char *argv[])
   g_test_add_func ("/library/system-installation", test_system_installation);
   g_test_add_func ("/library/multiple-system-installation", test_multiple_system_installations);
   g_test_add_func ("/library/installation-config", test_installation_config);
+  g_test_add_func ("/library/languages-config", test_languages_config);
   g_test_add_func ("/library/arches", test_arches);
   g_test_add_func ("/library/ref", test_ref);
   g_test_add_func ("/library/list-remotes", test_list_remotes);
