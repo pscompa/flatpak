@@ -14,7 +14,7 @@ To build it in Ubuntu (install in the microsoft store), first install the build 
  sudo apt-get install build-essential libcurl4-gnutls-dev libsoup2.4-dev \
       libext2fs-dev autoconf autopoint libtool libgpgme-dev bison \
       liblzma-dev libgirepository1.0-dev libcap-dev libarchive-dev \
-      libjson-glib-dev libxau-dev libappstream-glib-dev
+      libjson-glib-dev libxau-dev libappstream-glib-dev libfuse-dev
 ```
 
 Then build OSTree:
@@ -25,6 +25,7 @@ Then build OSTree:
  ./autogen.sh --disable-rofiles-fuse --disable-man --with-curl
  make
  sudo make install
+ sudo ldconfig -v
  cd ..
 ```
 
